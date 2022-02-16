@@ -5,13 +5,15 @@ import cv2
 from keras.models import load_model
 import numpy as np
 import json
+from sql_db import CON, new_user, user_visits_landmark
 
 
 print('Bot started...')
 
 
 def start_command(update, context):
-    update.message.reply_text('Type something random to get started!')
+    update.message.reply_text(f'Hello {update.message.from_user.first_name}!')
+    new_user(update.message.from_user['id'])
 
 
 def help_command(update, context):
@@ -32,10 +34,14 @@ def get_image(update, context):
     img = cv2.imread('img.jpg')
     img = cv2.resize(img, (299, 299))
     img = np.reshape(img, (1, 299, 299, 3))
+    # img = cv2.resize(img, (384, 384))
+    # img = np.reshape(img, (1, 384, 384, 3))
 
     pred = model.predict(img)
-    pred = np.argmax(pred)
-    # print(pred)
+    print(pred)
+    pred = np.argmax(pred) + 1
+    print(pred)
+    user_visits_landmark(update.message.from_user['id'], pred)
     with open('labels.json', 'r') as fp:
         labels = json.load(fp)
         pred = labels[str(pred)]
@@ -65,5 +71,6 @@ def main():
 
 
 model = load_model('models/landscape_hEfficientNet.h5')
+# model = load_model('models/effnet_b7')
 main()
 
