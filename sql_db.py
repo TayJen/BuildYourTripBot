@@ -40,5 +40,5 @@ def select_landmarks(user_id):
 # create_db()
 # new_user('f58')
 # user_visits_landmark('f58', 4)
-dl = select_landmarks('f58')
-print(dl)
+# dl = select_landmarks('f58')
+# print(dl)
