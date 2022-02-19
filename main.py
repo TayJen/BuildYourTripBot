@@ -6,6 +6,7 @@ from keras.models import load_model
 import numpy as np
 import json
 from sql_db import CON, new_user, user_visits_landmark
+from io import BytesIO
 
 
 print('Bot started...')
@@ -29,9 +30,12 @@ def handle_message(update, context):
 
 def get_image(update, context):
     photo = update.message.photo[-1].get_file()
-    photo.download('img.jpg')
-
-    img = cv2.imread('img.jpg')
+    # photo.download('img.jpg')
+    # https://stackoverflow.com/questions/59876271/how-to-process-images-from-telegram-bot-without-saving-to-file
+    # img = cv2.imread(photo)
+    # img = cv2.imdecode(np.fromstring(BytesIO(photo.download_as_bytearray()).getvalue(), np.uint8), 1)
+    # frombuffer
+    img = cv2.imdecode(np.frombuffer(BytesIO(photo.download_as_bytearray()).getvalue(), np.uint8), 1)
     img = cv2.resize(img, (299, 299))
     img = np.reshape(img, (1, 299, 299, 3))
     # img = cv2.resize(img, (384, 384))
