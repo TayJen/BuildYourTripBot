@@ -43,6 +43,7 @@ def get_image(update, context):
 
     pred = model.predict(img)
     print(pred)
+    max_pred_value = np.max(pred)
     pred = np.argmax(pred) + 1
     print(pred)
     user_visits_landmark(update.message.from_user['id'], pred)
@@ -51,6 +52,10 @@ def get_image(update, context):
         pred = labels[str(pred)]
 
     print(pred)
+
+    if max_pred_value <= 2.4:
+        pred = 'Sorry our model is uncertain about this one :('
+
     update.message.reply_text(pred)
 
 
