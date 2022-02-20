@@ -5,7 +5,7 @@ CON = sl.connect('users_landmarks.db', check_same_thread=False)
 
 
 def create_db():
-    from landmarks_json_creator import landmarks
+    from data.landmarks_json_creator import landmarks
     with CON:
         CON.execute('DROP TABLE IF EXISTS USERS;')
         CON.execute('CREATE TABLE USERS (user_id TEXT NOT NULL PRIMARY KEY, \

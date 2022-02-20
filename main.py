@@ -4,7 +4,6 @@ import Responses as R
 import cv2
 from keras.models import load_model
 import numpy as np
-import json
 from sql_db import CON, new_user, user_visits_landmark
 from io import BytesIO
 
@@ -18,7 +17,7 @@ def start_command(update, context):
 
 
 def help_command(update, context):
-    update.message.reply_text('Just send the image with the Landmark that you want to classify')
+    update.message.reply_text('Просто отправь фото достопримечательности ;)')
 
 
 def handle_message(update, context):
@@ -34,29 +33,27 @@ def get_image(update, context):
     # https://stackoverflow.com/questions/59876271/how-to-process-images-from-telegram-bot-without-saving-to-file
     # img = cv2.imread(photo)
     # img = cv2.imdecode(np.fromstring(BytesIO(photo.download_as_bytearray()).getvalue(), np.uint8), 1)
-    # frombuffer
+
     img = cv2.imdecode(np.frombuffer(BytesIO(photo.download_as_bytearray()).getvalue(), np.uint8), 1)
     img = cv2.resize(img, (299, 299))
     img = np.reshape(img, (1, 299, 299, 3))
-    # img = cv2.resize(img, (384, 384))
-    # img = np.reshape(img, (1, 384, 384, 3))
 
     pred = model.predict(img)
     print(pred)
+
     max_pred_value = np.max(pred)
+    if max_pred_value <= 2.4:
+        update.message.reply_text('Извини, но я не уверен насчет этой :(')
+        return
+
     pred = np.argmax(pred) + 1
     print(pred)
+
     user_visits_landmark(update.message.from_user['id'], pred)
-    with open('labels.json', 'r') as fp:
-        labels = json.load(fp)
-        pred = labels[str(pred)]
+    response = R.photo_response(pred)
 
-    print(pred)
-
-    if max_pred_value <= 2.4:
-        pred = 'Sorry our model is uncertain about this one :('
-
-    update.message.reply_text(pred)
+    # print(response)
+    update.message.reply_text(response)
 
 
 def error(update, context):
